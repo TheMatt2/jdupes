@@ -128,6 +128,13 @@ else
  BSTATIC = -Wl,-Bstatic
 endif
 
+# Set _DARWIN_C_SOURCE on macOS
+# Since _POSIX_C_SOURCE is set for posix_fadvise(), _DARWIN_C_SOURCE to avoid disabling MacOS specific interfaces
+# See man 5 compat
+ifeq ($(UNAME_S), Darwin)
+ COMPILER_OPTIONS += -D_DARWIN_C_SOURCE
+endif
+
 ifeq ($(GCCVERSION), 1)
  COMPILER_OPTIONS += -Wextra -Wstrict-overflow=5 -Winit-self
 endif
