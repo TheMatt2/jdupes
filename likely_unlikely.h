@@ -18,12 +18,12 @@ extern "C" {
 #undef unlikely
 #endif
 
-#define likely(a) __builtin_expect((a), 1)
-#define unlikely(a) __builtin_expect((a), 0)
+#define likely(a) __builtin_expect(!!(a), 1)
+#define unlikely(a) __builtin_expect(!!(a), 0)
 
 #else /* no GCC/Clang */
-#define likely(a) a
-#define unlikely(a) a
+#define likely(a) !!(a)
+#define unlikely(a) !!(a)
 #endif
 
 #ifdef __cplusplus
