@@ -25,6 +25,7 @@
 #include "jdupes.h"
 #include "args.h"
 #include "checks.h"
+#include "chunkcache.h"
 #ifdef DEBUG
  #include "dumpflags.h"
 #endif
@@ -765,6 +766,12 @@ skip_file_scan:
   /* Stop catching CTRL+C and firing alarms */
   signal(SIGINT, SIG_DFL);
   if (!ISFLAG(flags, F_HIDEPROGRESS)) jc_stop_alarm();
+
+  /* Clear chunk memory */
+  free(j_chunk1);
+  j_chunk1 = NULL;
+  free(j_chunk2);
+  j_chunk2 = NULL;
 
   if (files == NULL) {
     printf("%s", s_no_dupes);

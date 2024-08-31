@@ -31,8 +31,8 @@ INSTALL_DATA    = $(INSTALL) -m 0644
 
 # Main object files
 OBJS += hashdb.o
-OBJS += args.o checks.o dumpflags.o extfilter.o filehash.o filestat.o jdupes.o helptext.o
-OBJS += interrupt.o libjodycode_check.o loaddir.o match.o progress.o sort.o travcheck.o
+OBJS += args.o checks.o chunkcache.o dumpflags.o extfilter.o filehash.o filestat.o helptext.o
+OBJS += interrupt.o jdupes.o libjodycode_check.o loaddir.o match.o progress.o sort.o travcheck.o
 OBJS += act_deletefiles.o act_linkfiles.o act_printmatches.o act_summarize.o act_printjson.o
 
 # Configuration section

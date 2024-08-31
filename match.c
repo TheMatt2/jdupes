@@ -19,6 +19,7 @@
 #include "interrupt.h"
 #include "match.h"
 #include "progress.h"
+#include "chunkcache.h"
 
 
 #ifndef NO_HARDLINKS
@@ -363,7 +364,6 @@ file_t **checkmatch(filetree_t * restrict tree, file_t * const restrict file)
    same signature. Unlikely, but better safe than sorry. */
 int confirmmatch(const char * const restrict file1, const char * const restrict file2, const off_t size)
 {
-  static char *c1 = NULL, *c2 = NULL;
   FILE *fp1 = NULL, *fp2 = NULL;
   size_t r1, r2;
   off_t bytes = 0;
@@ -372,11 +372,15 @@ int confirmmatch(const char * const restrict file1, const char * const restrict 
   if (unlikely(file1 == NULL || file2 == NULL)) jc_nullptr("confirmmatch()");
   LOUD(fprintf(stderr, "confirmmatch running\n"));
 
-  if (unlikely(c1 == NULL || c2 == NULL)) {
-    c1 = (char *)malloc(auto_chunk_size);
-    c2 = (char *)malloc(auto_chunk_size);
+  if (unlikely(j_chunk1 == NULL)) {
+    j_chunk1 = (uint64_t *)malloc(auto_chunk_size);
+    if (unlikely(!j_chunk1)) jc_oom("confirmmatch() chunk1");
   }
-  if (unlikely(c1 == NULL || c2 == NULL)) jc_oom("confirmmatch() buffers");
+
+  if (unlikely(j_chunk2 == NULL)) {
+    j_chunk2 = (uint64_t *)malloc(auto_chunk_size);
+    if (unlikely(!j_chunk2)) jc_oom("confirmmatch() chunk2");
+  }
 
   fp1 = jc_fopen(file1, JC_FILE_MODE_RDONLY_SEQ);
   if (fp1 == NULL) {
@@ -403,12 +407,14 @@ int confirmmatch(const char * const restrict file1, const char * const restrict 
 
   do {
     if (interrupt) break;
-    r1 = fread(c1, sizeof(char), auto_chunk_size, fp1);
-    r2 = fread(c2, sizeof(char), auto_chunk_size, fp2);
+
+    /* Read all bytes in file, even if less than chunk size */
+    r1 = fread(j_chunk1, 1, auto_chunk_size, fp1);
+    r2 = fread(j_chunk2, 1, auto_chunk_size, fp2);
 
     if (r1 != r2) break; /* file lengths are different */
 
-    if (memcmp(c1, c2, r1)) break; /* file contents are different */
+    if (memcmp(j_chunk1, j_chunk2, r1)) break; /* file contents are different */
 
     bytes += (off_t)r1;
     if (jc_alarm_ring != 0) {
@@ -423,7 +429,6 @@ int confirmmatch(const char * const restrict file1, const char * const restrict 
     }
   } while (1);
 
-//  free(c1); free(c2);
   fclose(fp1);
   fclose(fp2);
 

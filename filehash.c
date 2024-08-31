@@ -22,6 +22,7 @@
 #include "progress.h"
 #include "jdupes.h"
 #include "xxhash.h"
+#include "chunkcache.h"
 
 const char *hash_algo_list[2] = {
   "xxHash64 v2",
@@ -42,7 +43,6 @@ uint64_t *get_filehash(const file_t * const restrict checkfile, const size_t max
   off_t fsize;
   /* This is an array because we return a pointer to it */
   static uint64_t hash[1];
-  static uint64_t *chunk = NULL;
   FILE *file = NULL;
   int hashing = 0;
 #ifndef NO_XXHASH2
@@ -57,9 +57,9 @@ uint64_t *get_filehash(const file_t * const restrict checkfile, const size_t max
   LOUD(fprintf(stderr, "get_filehash('%s', %" PRIdMAX ")\n", checkfile->d_name, (intmax_t)max_read));
 
   /* Allocate on first use */
-  if (unlikely(chunk == NULL)) {
-    chunk = (uint64_t *)malloc(auto_chunk_size);
-    if (unlikely(!chunk)) jc_oom("get_filehash() chunk");
+  if (unlikely(j_chunk1 == NULL)) {
+    j_chunk1 = (uint64_t *)malloc(auto_chunk_size);
+    if (unlikely(!j_chunk1)) jc_oom("get_filehash() chunk");
   }
 
   /* Get the file size. If we can't read it, bail out early */
@@ -132,16 +132,16 @@ uint64_t *get_filehash(const file_t * const restrict checkfile, const size_t max
 
     if (interrupt) return 0;
     bytes_to_read = (fsize >= (off_t)auto_chunk_size) ? auto_chunk_size : (size_t)fsize;
-    if (unlikely(fread((void *)chunk, bytes_to_read, 1, file) != 1)) goto error_reading_file;
+    if (unlikely(fread((void *)j_chunk1, bytes_to_read, 1, file) != 1)) goto error_reading_file;
 
   switch (algo) {
 #ifndef NO_XXHASH2
     case HASH_ALGO_XXHASH2_64:
-      if (unlikely(XXH64_update(xxhstate, chunk, bytes_to_read) != XXH_OK)) goto error_reading_file;
+      if (unlikely(XXH64_update(xxhstate, j_chunk1, bytes_to_read) != XXH_OK)) goto error_reading_file;
       break;
 #endif
     case HASH_ALGO_JODYHASH64:
-      if (unlikely(jc_block_hash(chunk, hash, bytes_to_read) != 0)) goto error_reading_file;
+      if (unlikely(jc_block_hash(j_chunk1, hash, bytes_to_read) != 0)) goto error_reading_file;
       break;
     default:
       goto error_bad_hash_algo;
