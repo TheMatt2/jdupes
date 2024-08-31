@@ -811,7 +811,7 @@ skip_file_scan:
       else fprintf(stderr, "Hash database is OK (no changes)\n");
     }
   }
-  if (hashdb_name != NULL) free(hashdb_name);
+  free(hashdb_name);
 #endif
 
 #ifdef DEBUG

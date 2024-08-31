@@ -51,7 +51,7 @@ void travcheck_free(struct travcheck *cur)
   if (cur->right == cur) goto error_travcheck_ptr;
   if (cur->left != NULL) travcheck_free(cur->left);
   if (cur->right != NULL) travcheck_free(cur->right);
-  if (cur != NULL) free(cur);
+  free(cur);
   return;
 error_travcheck_ptr:
   fprintf(stderr, "internal error: invalid pointer in travcheck_free(), report this\n");
