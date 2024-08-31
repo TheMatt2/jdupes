@@ -67,27 +67,27 @@ static void revert_failed(const char * const restrict orig, const char * const r
 /* linktype: 0=symlink, 1=hardlink, 2=clonefile() */
 void linkfiles(file_t *files, const int linktype, const int only_current)
 {
-  static file_t *tmpfile;
-  static file_t *srcfile;
-  static file_t *curfile;
-  static file_t ** restrict dupelist;
-  static unsigned int counter = 0;
-  static unsigned int max = 0;
-  static unsigned int x = 0;
-  static size_t name_len = 0;
-  static int i, success;
+  file_t *tmpfile;
+  file_t *srcfile;
+  file_t *curfile;
+  file_t ** restrict dupelist;
+  unsigned int counter = 0;
+  unsigned int max = 0;
+  unsigned int x = 0;
+  size_t name_len = 0;
+  int i, success;
 #ifndef NO_SYMLINKS
-  static unsigned int symsrc;
+  unsigned int symsrc;
   static char rel_path[PATHBUF_SIZE];
 #endif
 #if defined ON_WINDOWS || defined ENABLE_CLONEFILE_LINK
-  static struct JC_STAT s;
+  struct JC_STAT s;
 #endif
 #ifdef ENABLE_CLONEFILE_LINK
-  static unsigned int srcfile_preserved_flags = 0;
-  static unsigned int dupfile_preserved_flags = 0;
-  static unsigned int dupfile_original_flags = 0;
-  static struct timeval dupfile_original_tval[2];
+  unsigned int srcfile_preserved_flags = 0;
+  unsigned int dupfile_preserved_flags = 0;
+  unsigned int dupfile_original_flags = 0;
+  struct timeval dupfile_original_tval[2];
 #endif
 
   LOUD(fprintf(stderr, "linkfiles(%d): %p\n", linktype, files));

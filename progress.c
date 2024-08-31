@@ -17,6 +17,7 @@ void update_phase1_progress(const char * const restrict type)
 /* Update progress indicator if requested */
 void update_phase2_progress(const char * const restrict msg, const int file_percent)
 {
+  /* "did display file percent" */
   static int did_fpct = 0;
 
   fprintf(stderr, "\rProgress [%" PRIuMAX "/%" PRIuMAX ", %" PRIuMAX " pairs matched] %" PRIuMAX "%%",

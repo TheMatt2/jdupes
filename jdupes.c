@@ -111,9 +111,6 @@ uintmax_t comparisons = 0;
  #endif
 #endif /* DEBUG */
 
-/* File tree head */
-static filetree_t *checktree = NULL;
-
 /* Hash algorithm (see filehash.h) */
 #ifdef USE_JODY_HASH
 int hash_algo = HASH_ALGO_JODYHASH64;
@@ -148,25 +145,27 @@ int wmain(int argc, wchar_t **wargv)
 int main(int argc, char **argv)
 #endif
 {
-  static file_t *files = NULL;
-  static file_t *curfile;
-  static char **oldargv;
-  static int firstrecurse;
-  static int opt;
-  static int pm = 1;
-  static int partialonly_spec = 0;
+  file_t *files = NULL;
+  file_t *curfile;
+  char **oldargv;
+  int firstrecurse;
+  int opt;
+  int pm = 1;
+  int partialonly_spec = 0;
+  /* File tree head */
+  filetree_t *checktree = NULL;
 #ifndef NO_MTIME  /* Remove if new order types are added! */
-  static ordertype_t ordertype = ORDER_NAME;
+  ordertype_t ordertype = ORDER_NAME;
 #endif
 #ifndef NO_CHUNKSIZE
-  static long manual_chunk_size = 0;
+  long manual_chunk_size = 0;
  #ifdef __linux__
-  static struct jc_proc_cacheinfo pci;
+  struct jc_proc_cacheinfo pci;
  #endif /* __linux__ */
 #endif /* NO_CHUNKSIZE */
 #ifdef ENABLE_DEDUPE
  #ifdef __linux__
-  static struct utsname utsname;
+  struct utsname utsname;
  #endif /* __linux__ */
 #endif
 #ifndef NO_HASHDB
@@ -244,7 +243,7 @@ int main(int argc, char **argv)
 
 #ifdef UNICODE
   /* Create a UTF-8 **argv from the wide version */
-  static char **argv;
+  char **argv;
   int wa_err;
   argv = (char **)malloc(sizeof(char *) * (size_t)argc);
   if (!argv) jc_oom("main() unicode argv");
@@ -698,7 +697,7 @@ skip_partialonly_noise:
   if (!ISFLAG(flags, F_HIDEPROGRESS)) jc_alarm_ring = 1;
 
   while (curfile) {
-    static file_t **match = NULL;
+    file_t **match = NULL;
 
     if (unlikely(interrupt != 0)) {
       if (!ISFLAG(flags, F_SOFTABORT)) exit(EXIT_FAILURE);

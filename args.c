@@ -10,8 +10,10 @@
 
 char **cloneargs(const int argc, char **argv)
 {
-  static int x;
-  static char **args;
+  /* C standard says argv[argc] = NULL
+   * Save a byte by not preserving this property in clone. */
+  int x;
+  char **args;
 
   args = (char **)malloc(sizeof(char *) * (unsigned int)argc);
   if (args == NULL) jc_oom("cloneargs() start");
