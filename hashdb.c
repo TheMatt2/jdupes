@@ -474,7 +474,11 @@ warn_hashdb_algo:
   return -7;
 }
 
-
+/* Clang 12 warnings of cast alignment. This code does check the alignment, but Clang warns anyway. */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
+#endif
 static int get_path_hash(char *path, uint64_t *path_hash)
 {
   uint64_t aligned_path[(PATHBUF_SIZE + 8) / sizeof(uint64_t)];
@@ -487,6 +491,9 @@ static int get_path_hash(char *path, uint64_t *path_hash)
   } else retval = jc_block_hash((uint64_t *)path, path_hash, strlen(path));
   return retval;
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 
 /* Scan database for a matching file entry; if found, load hashes into it */
