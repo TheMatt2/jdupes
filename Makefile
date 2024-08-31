@@ -153,11 +153,11 @@ endif  # USE_JODY_HASH
 # The ld syntax for Windows is the same for both Cygwin and MinGW
 ifndef LOW_MEMORY
  ifeq ($(OS), Windows_NT)
-  COMPILER_OPTIONS += -Wl,--stack=16777216
+  LINK_OPTIONS += -Wl,--stack=16777216
  else ifeq ($(UNAME_S), Darwin)
-  COMPILER_OPTIONS += -Wl,-stack_size -Wl,0x1000000
+  LINK_OPTIONS += -Wl,-stack_size -Wl,0x1000000
  else
-  COMPILER_OPTIONS += -Wl,-z,stack-size=16777216
+  LINK_OPTIONS += -Wl,-z,stack-size=16777216
  endif
 endif
 
@@ -209,7 +209,8 @@ endif
 ifndef IGNORE_NEARBY_JC
  ifneq ("$(wildcard ../libjodycode/libjodycode.h)","")
   $(info Found and using nearby libjodycode at ../libjodycode)
-  COMPILER_OPTIONS += -I../libjodycode -L../libjodycode
+  COMPILER_OPTIONS += -I../libjodycode
+  LINK_OPTIONS += -L../libjodycode
   ifeq ("$(wildcard ../libjodycode/version.o)","")
    $(error You must build libjodycode before building jdupes)
   endif
