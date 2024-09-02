@@ -43,6 +43,7 @@ output.log
 #
 # debugging and editor stuff
 #
+.vscode
 core
 .gdb_history
 .gdbinit
